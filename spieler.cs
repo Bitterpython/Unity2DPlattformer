@@ -65,26 +65,23 @@ void OnCollisionEnter2D(Collision2D coll)
         if (anzahlPunkte == 1)
             infoAnzeige.text = "Du hast bereits 1 Punkt!";
         else
-            infoAnzeige.text = "Du hast bereits" + anzahlPunkte + "Punkte";
+            infoAnzeige.text = "Du hast bereits " + anzahlPunkte + " Punkte";
+        Invoke (nameof(NaechsterGewinn), 2);
         }
        
         else
         {
             infoAnzeige.text = "Du hast gewonnen!";
+            spielGestartet = false;
             gameObject.SetActive (false);
             gewinn.SetActive (false);
             punkteAnzeige.text = "Gewonnen";
             PlayerPrefs.SetFloat("zeitAlt", Time.time - zeitStart);
             PlayerPrefs.Save();
         }
-    
-        float xNeu = Random.Range(-8.0f, 8.0f);
-        float yNeu;
-        if (anzahlPunkte < 2) yNeu = -2.7f;
-        else if (anzahlPunkte < 4) yNeu = 0.15f;
-        else yNeu = 3;
-
-        gewinn.transform.position = new Vector3 (xNeu, yNeu, 0);
+      
+        
+       
     }
     else if (coll.gameObject.CompareTag("Gefahr"))
     {
@@ -94,11 +91,13 @@ void OnCollisionEnter2D(Collision2D coll)
         gameObject.SetActive (false);
         if(anzahlLeben > 0)
             {
-                infoAnzeige.text = "Du hast nur noch" + anzahlLeben + "Leben!";
+                infoAnzeige.text = "Du hast nur noch " + anzahlLeben + " Leben!";
                 Invoke (nameof(NaechstesLeben), 2);
             }
         else
         {
+            infoAnzeige.text = "Du hast verloren";
+            spielGestartet = false;
             gewinn.SetActive (false);
             lebenAnzeige.text = "Verloren";
         }
@@ -123,4 +122,43 @@ void NaechstesLeben()
     gameObject.SetActive(true);
     infoAnzeige.text = "";
 }
+public void SpielNeuButton_Click()
+{
+    if (spielGestartet)
+        return;
+    
+    anzahlPunkte = 0;
+    anzahlLeben = 3;
+    float zeitAlt = 0;
+    if (PlayerPrefs.HasKey("zeitAlt"))
+        zeitAlt =  PlayerPrefs.GetFloat("zeitAlt");
+    
+    punkteAnzeige.text = "Punkte : 0";
+    lebenAnzeige.text = "Leben : 3";
+    zeitAnzeige.text = "Zeit:   0.0sec.";
+    zeitAltAnzeige.text = 
+        string.Format("Alt: {0,6:0.0} sec.", zeitAlt);
+    infoAnzeige.text =
+        "Bei Bestätigen einer beliebigen Taste beginnt das Spiel.\n"
+        + "Lenke den Affen mit WASD.\n"
+        + "Sammle Bananen und vermeide die Tiger.\n";
+    
+    transform.position = new Vector3(0, -4.4f, 0);
+    gameObject.SetActive(true);
+
+    gewinn.transform.position = new Vector3 (4, -2.7f, 0);
+    gewinn.SetActive (true);
+
 }
+public void AnwendungEndeButton_Click()
+{
+    if (!spielGestartet)
+    {
+        Application.Quit();
+    }
+        
+}
+}
+
+
+
